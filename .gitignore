@@ -1,8 +1,17 @@
-# Entornos y secretos
+# Secretos y variables de entorno
 .env
 .env.*
 !.env.example
 *.env
-__pycache__/
+
+# Datos crudos privados e intermedios
 compras/
-catalogo_productos_limpio.csv
+etl/data/interim/
+
+# Entornos virtuales y cachés de Python/Jupyter
+entorno-contrato/
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
