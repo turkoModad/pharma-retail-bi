@@ -873,3 +873,570 @@ button.secondary:not(.outline):hover:not(:disabled) {
     margin: 0 0 0.4rem 0;
     border-color: var(--auth-border-subtle);
 }
+
+/* ==========================================================================
+   Centro de Mando Administrativo — Barra Superior Verde (#307D14) y Power BI
+   ========================================================================== */
+body.has-admin-bar {
+    padding-top: 3.25rem;
+}
+
+.admin-top-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    background-color: #307D14;
+    color: #FFFFFF;
+    border-bottom: 1px solid #25620F;
+    box-shadow: 0 2px 8px rgba(28, 75, 11, 0.22);
+}
+
+.admin-nav-inner {
+    max-width: 1360px;
+    margin: 0 auto;
+    padding: 0.35rem 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.65rem;
+    flex-wrap: wrap;
+}
+
+.admin-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    color: #FFFFFF;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 0.92rem;
+    white-space: nowrap;
+}
+
+.admin-brand:hover {
+    color: #EBF5E7;
+}
+
+.admin-brand-cross {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.3rem;
+    height: 1.3rem;
+    border-radius: 5px;
+    background-color: #FFFFFF;
+    color: #307D14;
+    font-weight: 900;
+    font-size: 0.95rem;
+    line-height: 1;
+}
+
+.admin-nav-tabs {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    flex-wrap: wrap;
+}
+
+.admin-nav-tab {
+    appearance: none;
+    background: transparent;
+    border: 1px solid transparent;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 0.32rem 0.65rem;
+    border-radius: 6px;
+    cursor: pointer;
+    text-decoration: none;
+    line-height: 1.25;
+    margin: 0;
+    width: auto;
+    white-space: nowrap;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.admin-nav-tab:hover {
+    background-color: #25620F;
+    color: #FFFFFF;
+}
+
+.admin-nav-tab.is-active {
+    background-color: #FFFFFF;
+    color: #307D14;
+    border-color: #FFFFFF;
+}
+
+.admin-nav-right {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.admin-user-pill {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.28);
+    color: #FFFFFF;
+    font-size: 0.76rem;
+}
+
+.admin-user-pill .role-admin {
+    background: #EBF5E7;
+    color: #1C4B0B;
+    border-color: transparent;
+}
+
+.admin-logout-btn {
+    background: rgba(255, 255, 255, 0.12) !important;
+    border: 1px solid rgba(255, 255, 255, 0.4) !important;
+    color: #FFFFFF !important;
+}
+
+.admin-logout-btn:hover {
+    background: #25620F !important;
+}
+
+.admin-main-container {
+    max-width: 1360px;
+    padding-top: 0.75rem;
+}
+
+.admin-tab-panel[hidden] {
+    display: none !important;
+}
+
+.panel-top-row {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.65rem;
+    flex-wrap: wrap;
+}
+
+.panel-title {
+    font-size: 1.25rem;
+    margin-bottom: 0.1rem;
+    color: var(--auth-text-main);
+}
+
+.panel-subtitle {
+    font-size: 0.8rem;
+    color: var(--auth-text-muted);
+    margin: 0;
+}
+
+/* Segmentadores (Slicers) */
+.slicer-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    padding: 0.65rem 0.9rem;
+    margin-bottom: 0.75rem;
+}
+
+.slicer-group {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    flex-wrap: wrap;
+}
+
+.slicer-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--auth-text-muted);
+}
+
+.slicer-field {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin: 0;
+    font-size: 0.76rem;
+    font-weight: 600;
+}
+
+.slicer-field input[type="date"] {
+    margin: 0;
+    padding: 0.28rem 0.45rem;
+    font-size: 0.78rem;
+    width: auto;
+}
+
+.segmented-control {
+    display: inline-flex;
+    background-color: var(--auth-surface-muted);
+    border: 1px solid var(--auth-border-subtle);
+    border-radius: 6px;
+    padding: 2px;
+    gap: 2px;
+}
+
+.seg-btn {
+    appearance: none;
+    background: transparent;
+    border: none;
+    color: var(--auth-text-muted);
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 0.28rem 0.68rem;
+    border-radius: 4px;
+    cursor: pointer;
+    margin: 0;
+    width: auto;
+    line-height: 1.2;
+}
+
+.seg-btn:hover {
+    color: var(--auth-primary);
+    background: var(--auth-primary-soft);
+}
+
+.seg-btn.is-active {
+    background: #307D14;
+    color: #FFFFFF;
+}
+
+/* KPI Grid Power BI */
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.7rem;
+    margin-bottom: 0.75rem;
+}
+
+@media (max-width: 960px) {
+    .kpi-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 520px) {
+    .kpi-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.kpi-card {
+    background: var(--auth-card-bg);
+    border: 1px solid var(--auth-border-subtle);
+    border-top: 3px solid #307D14;
+    border-radius: 8px;
+    padding: 0.75rem 0.9rem;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.22rem;
+    box-shadow: 0 2px 6px rgba(26, 36, 26, 0.04);
+}
+
+.kpi-compact {
+    padding: 0.6rem 0.85rem;
+}
+
+.kpi-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--auth-text-muted);
+}
+
+.kpi-value {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: var(--auth-text-main);
+    line-height: 1.15;
+    font-variant-numeric: tabular-nums;
+}
+
+.kpi-green {
+    color: #307D14;
+}
+
+.kpi-red {
+    color: #B91C1C;
+}
+
+.kpi-meta {
+    font-size: 0.74rem;
+    color: var(--auth-text-muted);
+}
+
+.delta-up {
+    color: #1C4B0B;
+    background: #EBF5E7;
+    padding: 0.08rem 0.35rem;
+    border-radius: 4px;
+    font-weight: 700;
+    display: inline-block;
+    width: fit-content;
+}
+
+.delta-down {
+    color: #991B1B;
+    background: #FEE2E2;
+    padding: 0.08rem 0.35rem;
+    border-radius: 4px;
+    font-weight: 700;
+    display: inline-block;
+    width: fit-content;
+}
+
+/* Gráfico SVG Adaptativo */
+.chart-card {
+    padding: 0.85rem 1rem;
+}
+
+.chart-stage {
+    position: relative;
+    width: 100%;
+    min-height: 265px;
+    overflow: hidden;
+    margin-bottom: 0.75rem;
+}
+
+.adaptive-bar-svg {
+    width: 100%;
+    height: 265px;
+    display: block;
+    user-select: none;
+}
+
+.svg-grid-line {
+    stroke: #E4EBE4;
+    stroke-width: 1;
+    stroke-dasharray: 3, 3;
+}
+
+.svg-axis-line {
+    stroke: #C6D1C6;
+    stroke-width: 1;
+}
+
+.svg-axis-label {
+    fill: #526052;
+    font-size: 11px;
+    font-family: system-ui, -apple-system, sans-serif;
+}
+
+.svg-bar {
+    fill: #307D14;
+    transition: fill 0.12s ease;
+    cursor: pointer;
+}
+
+.svg-bar:hover,
+.svg-bar.is-hovered {
+    fill: #25620F;
+}
+
+.svg-bar-hit {
+    fill: transparent;
+    cursor: pointer;
+}
+
+.chart-tooltip {
+    position: absolute;
+    pointer-events: none;
+    z-index: 20;
+    background: #1A241A;
+    color: #FFFFFF;
+    padding: 0.45rem 0.65rem;
+    border-radius: 6px;
+    font-size: 0.76rem;
+    line-height: 1.35;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.22);
+    white-space: nowrap;
+}
+
+.series-table-wrap {
+    max-height: 240px;
+    border-top: 1px solid var(--auth-border-subtle);
+    padding-top: 0.5rem;
+}
+
+/* Tablas Compactas, Barras Proporcionales y Filtros */
+.compact-table th,
+.compact-table td {
+    font-size: 0.78rem;
+    padding: 0.42rem 0.55rem;
+    vertical-align: middle;
+}
+
+.num-col {
+    text-align: right !important;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.65rem;
+}
+
+.filter-bar input,
+.filter-bar select {
+    margin-bottom: 0 !important;
+    padding: 0.34rem 0.55rem !important;
+    font-size: 0.8rem !important;
+    width: auto;
+}
+
+.filter-input-grow {
+    flex: 1 1 240px;
+    min-width: 190px;
+}
+
+.filter-input-sm {
+    flex: 1 1 160px;
+    min-width: 140px;
+}
+
+.filter-input-xs {
+    width: 135px !important;
+}
+
+.prop-bar-track {
+    width: 100%;
+    min-width: 90px;
+    height: 7px;
+    background: #EBF5E7;
+    border-radius: 999px;
+    overflow: hidden;
+    margin-top: 0.22rem;
+}
+
+.prop-bar-fill {
+    height: 100%;
+    background: #307D14;
+    border-radius: 999px;
+}
+
+.gap-bar-fill {
+    height: 100%;
+    background: #D97706;
+    border-radius: 999px;
+}
+
+.drug-chips-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-bottom: 0.65rem;
+}
+
+.drug-chip {
+    appearance: none;
+    background: #EBF5E7;
+    border: 1px solid #B7DCA9;
+    color: #1C4B0B;
+    font-size: 0.73rem;
+    font-weight: 600;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    cursor: pointer;
+    margin: 0;
+    width: auto;
+    line-height: 1.2;
+}
+
+.drug-chip:hover,
+.drug-chip.is-active {
+    background: #307D14;
+    border-color: #307D14;
+    color: #FFFFFF;
+}
+
+.cheapest-row {
+    background-color: #F4FAF1 !important;
+}
+
+.badge-cheapest {
+    background-color: #EBF5E7;
+    color: #307D14;
+    border: 1px solid #307D14;
+    font-weight: 800;
+}
+
+.badge-warn {
+    background-color: var(--auth-warn-bg);
+    color: var(--auth-warn-text);
+    border: 1px solid #FDE68A;
+}
+
+.pagination-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-top: 0.6rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--auth-border-subtle);
+    font-size: 0.78rem;
+    color: var(--auth-text-muted);
+}
+
+.pagination-btns {
+    display: flex;
+    gap: 0.35rem;
+    align-items: center;
+}
+
+.drill-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+}
+
+.drill-controls[hidden] {
+    display: none !important;
+}
+
+.modal-card-compact {
+    max-width: 440px;
+    width: 100%;
+    margin: 0;
+}
+
+.admin-toast {
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    z-index: 90;
+    background: #1A241A;
+    color: #FFFFFF;
+    padding: 0.55rem 0.9rem;
+    border-radius: 6px;
+    font-size: 0.82rem;
+    border-left: 4px solid #307D14;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.22);
+    max-width: 360px;
+}
+
+.admin-toast.is-error {
+    border-left-color: #DC2626;
+    background: #7F1D1D;
+}
+
+.admin-toast[hidden] {
+    display: none !important;
+}
+
+@media (max-width: 820px) {
+    body.has-admin-bar {
+        padding-top: 5.5rem;
+    }
+}

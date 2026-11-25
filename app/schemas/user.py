@@ -234,6 +234,19 @@ class UserRead(BaseModel):
         return cls.model_validate(user)
 
 
+class AdminEmailUpdate(BaseModel):
+    """Esquema para cambio administrativo de correo electrónico de un usuario."""
+
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    email: str = Field(..., description="Nuevo correo electrónico normalizado del usuario")
+
+    @field_validator("email", mode="before")
+    @classmethod
+    def normalize_email(cls, value: Any) -> str:
+        return validate_email_address(value)
+
+
 class AdminUserUpdate(BaseModel):
     """Esquema para operaciones administrativas sobre cuentas de usuario (RBAC)."""
 
@@ -244,6 +257,14 @@ class AdminUserUpdate(BaseModel):
     is_active: bool | None = Field(
         default=None,
         description="Estado de activación de la cuenta",
+    )
+    is_verified: bool | None = Field(
+        default=None,
+        description="Estado de verificación manual del correo",
+    )
+    email: str | None = Field(
+        default=None,
+        description="Nuevo correo electrónico del usuario",
     )
     unlock_account: bool = Field(
         default=False,
@@ -261,3 +282,10 @@ class AdminUserUpdate(BaseModel):
         if normalized not in ("user", "admin"):
             raise ValueError("El rol debe ser 'user' o 'admin'.")
         return normalized
+
+    @field_validator("email", mode="before")
+    @classmethod
+    def normalize_optional_email(cls, value: Any) -> str | None:
+        if value is None or str(value).strip() == "":
+            return None
+        return validate_email_address(value)

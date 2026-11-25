@@ -6,10 +6,50 @@
     <meta name="csrf-token" content="{{ csrf_token | default('') }}">
     <title>{% block title %}Portal de Cuentas{% endblock %}</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
-    <link rel="stylesheet" href="/static/css/styles.css?v=3">
+    <link rel="stylesheet" href="/static/css/styles.css?v=4">
     {% block head_extra %}{% endblock %}
 </head>
-<body data-authenticated="{{ 'true' if current_user else 'false' }}">
+{% set is_admin = current_user and (current_user.role == 'admin' or (current_user.role.value is defined and current_user.role.value == 'admin')) %}
+<body data-authenticated="{{ 'true' if current_user else 'false' }}" class="{% if is_admin %}has-admin-bar{% endif %}">
+    {% if is_admin %}
+    <header class="admin-top-nav" role="banner">
+        <div class="admin-nav-inner">
+            <div class="admin-nav-brand-group">
+                <a href="/admin" class="admin-brand">
+                    <span class="admin-brand-cross" aria-hidden="true">+</span>
+                    <span>Farmacia &bull; Centro de Mando</span>
+                </a>
+            </div>
+
+            <nav class="admin-nav-tabs" aria-label="Navegación administrativa">
+                {% if is_admin_dashboard %}
+                    <button type="button" class="admin-nav-tab is-active" data-admin-tab="compras">📊 Compras</button>
+                    <button type="button" class="admin-nav-tab" data-admin-tab="productos">💊 Productos y Drogas</button>
+                    <button type="button" class="admin-nav-tab" data-admin-tab="users">👥 Usuarios</button>
+                    <button type="button" class="admin-nav-tab" data-admin-tab="logs">🛡️ Logs de Auditoría</button>
+                    <a href="/profile" class="admin-nav-tab admin-nav-link">👤 Mi Perfil</a>
+                {% else %}
+                    <a href="/admin" class="admin-nav-tab admin-nav-link">📊 Compras</a>
+                    <a href="/admin#productos" class="admin-nav-tab admin-nav-link">💊 Productos y Drogas</a>
+                    <a href="/admin#users" class="admin-nav-tab admin-nav-link">👥 Usuarios</a>
+                    <a href="/admin#logs" class="admin-nav-tab admin-nav-link">🛡️ Logs de Auditoría</a>
+                    <a href="/profile" class="admin-nav-tab admin-nav-link is-active">👤 Mi Perfil</a>
+                {% endif %}
+            </nav>
+
+            <div class="admin-nav-right">
+                <span class="user-pill admin-user-pill" title="Sesión activa de administrador">
+                    {{ current_user.email }}
+                    <small class="role-badge role-admin">admin</small>
+                </span>
+                <form action="/auth/logout" method="POST" class="inline-form" id="logout-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token | default('') }}">
+                    <button type="submit" class="btn-sm admin-logout-btn">Cerrar Sesión</button>
+                </form>
+            </div>
+        </div>
+    </header>
+    {% else %}
     <header class="container-fluid nav-header">
         <nav class="container">
             <ul>
@@ -24,15 +64,12 @@
                     <li>
                         <span class="user-pill" title="Sesión activa">
                             {{ current_user.email }}
-                            <small class="role-badge {% if current_user.role == 'admin' or (current_user.role.value is defined and current_user.role.value == 'admin') %}role-admin{% else %}role-user{% endif %}">
+                            <small class="role-badge role-user">
                                 {{ current_user.role.value if current_user.role.value is defined else current_user.role }}
                             </small>
                         </span>
                     </li>
                     <li><a href="/profile">Mi Perfil</a></li>
-                    {% if current_user.role == 'admin' or (current_user.role.value is defined and current_user.role.value == 'admin') %}
-                        <li><a href="/admin">Panel Admin</a></li>
-                    {% endif %}
                     <li>
                         <form action="/auth/logout" method="POST" class="inline-form" id="logout-form">
                             <input type="hidden" name="csrf_token" value="{{ csrf_token | default('') }}">
@@ -46,8 +83,9 @@
             </ul>
         </nav>
     </header>
+    {% endif %}
 
-    <main class="container main-container">
+    <main class="container main-container {% if is_admin_dashboard %}admin-main-container{% endif %}">
         {% set active_error = error_message | default(error | default('')) %}
         {% set active_success = success_message | default(success | default('')) %}
         {% set active_flash = flash_message | default(message | default('')) %}
@@ -86,7 +124,7 @@
         </div>
     </footer>
 
-    <script src="/static/js/auth_refresh.js?v=3" defer></script>
+    <script src="/static/js/auth_refresh.js?v=4" defer></script>
     {% block scripts %}{% endblock %}
 </body>
 </html>

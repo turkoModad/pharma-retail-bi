@@ -544,8 +544,12 @@
                     .then(function (res) {
                         if (res.ok) {
                             loginForm.reset();
-                            window.location.replace("/profile");
-                            return;
+                            return res.json().catch(function () {
+                                return {};
+                            }).then(function (data) {
+                                var role = data && data.user && data.user.role ? String(data.user.role).toLowerCase() : "user";
+                                window.location.replace(role === "admin" ? "/admin" : "/profile");
+                            });
                         }
                         return res.json().catch(function () {
                             return {};
@@ -638,7 +642,12 @@
                             window.location.replace(LOGIN_EXPIRED_URL);
                         }
                     } else if (isAuthGate && res.ok) {
-                        window.location.replace("/profile");
+                        return res.json().catch(function () {
+                            return {};
+                        }).then(function (userData) {
+                            var role = userData && userData.role ? String(userData.role).toLowerCase() : "user";
+                            window.location.replace(role === "admin" ? "/admin" : "/profile");
+                        });
                     }
                 })
                 .catch(function () {

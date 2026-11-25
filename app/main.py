@@ -30,6 +30,7 @@ from app.core.limiter import limiter
 from app.middlewares.audit_middleware import AuditAndCSRFMiddleware
 from app.middlewares.security_headers import SecurityHeadersMiddleware
 from app.routers import admin, auth, users, views
+from app.services.analytics_service import ensure_analytics_indexes_sync
 
 logger = logging.getLogger("app.main")
 
@@ -46,6 +47,8 @@ async def lifespan(application: FastAPI) -> AsyncIterator[None]:
     try:
         async with engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
+            if str(settings.DATABASE_URL).startswith("sqlite"):
+                await conn.run_sync(ensure_analytics_indexes_sync)
     except Exception as exc:
         logger.debug("Omitiendo create_all automático en arranque (%s).", exc)
     yield

@@ -49,6 +49,8 @@ def _apply_sqlite_pragmas(dbapi_connection: Any, _connection_record: Any) -> Non
         cursor.execute("PRAGMA foreign_keys=ON;")
         cursor.execute("PRAGMA busy_timeout=5000;")
         cursor.execute("PRAGMA secure_delete=ON;")
+        cursor.execute("PRAGMA temp_store=MEMORY;")
+        cursor.execute("PRAGMA cache_size=-8000;")
     finally:
         cursor.close()
 

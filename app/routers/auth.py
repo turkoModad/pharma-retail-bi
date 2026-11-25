@@ -236,8 +236,15 @@ async def login_endpoint(
         raise
 
     if is_html:
+        logged_user = auth_data["user"]
+        user_role = (
+            logged_user.role.value
+            if hasattr(logged_user.role, "value")
+            else str(logged_user.role)
+        )
+        target_url = "/admin" if user_role == "admin" else "/profile"
         redirect_resp = RedirectResponse(
-            url="/profile",
+            url=target_url,
             status_code=status.HTTP_303_SEE_OTHER,
         )
         set_auth_cookies(

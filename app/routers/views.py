@@ -154,14 +154,20 @@ def _render_template(
     return response
 
 
+def _home_url_for_user(user: User | None) -> str:
+    if user is None:
+        return "/login"
+    role_str = user.role.value if hasattr(user.role, "value") else str(user.role)
+    return "/admin" if role_str == UserRole.ADMIN.value else "/profile"
+
+
 @router.get("/", include_in_schema=False)
 async def root_redirect(
     request: Request,
     current_user: User | None = Depends(get_optional_current_user),
 ) -> Response:
-    """Redirige a `/profile` si el usuario tiene sesión activa o a `/login` en caso contrario."""
-    target = "/profile" if current_user is not None else "/login"
-    return RedirectResponse(url=target, status_code=status.HTTP_303_SEE_OTHER)
+    """Redirige a `/admin` (admin), `/profile` (user) o `/login` según la sesión activa."""
+    return RedirectResponse(url=_home_url_for_user(current_user), status_code=status.HTTP_303_SEE_OTHER)
 
 
 @router.get("/login", response_class=HTMLResponse)
@@ -171,7 +177,7 @@ async def login_view(
 ) -> Response:
     """Renderiza el formulario de inicio de sesión."""
     if current_user is not None:
-        return RedirectResponse(url="/profile", status_code=status.HTTP_303_SEE_OTHER)
+        return RedirectResponse(url=_home_url_for_user(current_user), status_code=status.HTTP_303_SEE_OTHER)
     return _render_template(
         request=request,
         template_name="login.html",
@@ -186,7 +192,7 @@ async def register_view(
 ) -> Response:
     """Renderiza el formulario de registro de usuario."""
     if current_user is not None:
-        return RedirectResponse(url="/profile", status_code=status.HTTP_303_SEE_OTHER)
+        return RedirectResponse(url=_home_url_for_user(current_user), status_code=status.HTTP_303_SEE_OTHER)
     return _render_template(
         request=request,
         template_name="register.html",
@@ -303,24 +309,23 @@ async def admin_dashboard_view(
         else str(current_user.role)
     )
     if role_str != UserRole.ADMIN.value:
+        accept = (request.headers.get("accept") or "").lower()
+        if "text/html" in accept and "application/json" not in accept:
+            return RedirectResponse(
+                url="/profile",
+                status_code=status.HTTP_303_SEE_OTHER,
+            )
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Acceso denegado: se requieren privilegios de administrador (RBAC).",
         )
 
     user_read = UserRead.from_user(current_user)
-    all_users_orm = await list_all_users(db=db, limit=200)
-    all_users = [UserRead.from_user(u) for u in all_users_orm]
-
-    audit_entries_orm = await list_audit_logs(db=db, limit=100)
-    audit_entries = [AuditLogRead.model_validate(a) for a in audit_entries_orm]
-
     return _render_template(
         request=request,
         template_name="admin_dashboard.html",
         context={
             "current_user": user_read,
-            "users": all_users,
-            "audit_logs": audit_entries,
+            "is_admin_dashboard": True,
         },
     )

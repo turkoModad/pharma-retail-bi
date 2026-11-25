@@ -5,11 +5,15 @@
 {% block content %}
 <div class="profile-compact-wrap">
 {% set profile_user = user | default(current_user) %}
-<section class="dashboard-header">
+{% set is_profile_admin = profile_user and (profile_user.role == 'admin' or (profile_user.role.value is defined and profile_user.role.value == 'admin')) %}
+<section class="dashboard-header panel-header-flex">
     <hgroup>
         <h1>Perfil de Usuario y Seguridad</h1>
         <p>Gestión de datos personales y seguridad de su cuenta.</p>
     </hgroup>
+    {% if is_profile_admin %}
+        <a href="/admin" role="button" class="btn-sm">&larr; Volver al Centro de Mando</a>
+    {% endif %}
 </section>
 
 {% if dev_verification_link %}
@@ -232,9 +236,55 @@
         </form>
     </article>
 </div>
-{% endif %}
 
-{% if profile_user %}
+<article class="card-panel">
+    <header class="panel-header-flex">
+        <div>
+            <h2>Sesiones Activas y Últimos Accesos</h2>
+            <small>Historial reciente de actividad de seguridad de su cuenta</small>
+        </div>
+        <form action="/users/me/revoke-sessions" method="POST" class="inline-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token | default('') }}">
+            <button type="submit" class="btn-xs secondary outline">Cerrar todas mis sesiones</button>
+        </form>
+    </header>
+    <div class="overflow-auto">
+        <table class="striped audit-table">
+            <thead>
+                <tr>
+                    <th>Fecha / Hora</th>
+                    <th>Evento</th>
+                    <th>IP</th>
+                    <th>Dispositivo</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if recent_logins is defined and recent_logins %}
+                    {% for log in recent_logins %}
+                    {% set ev_type = log.event_type.value if log.event_type.value is defined else log.event_type %}
+                    <tr>
+                        <td class="mono-text nowrap-cell">
+                            {{ log.created_at.strftime('%Y-%m-%d %H:%M:%S UTC') if log.created_at is defined and log.created_at.strftime is defined else log.created_at }}
+                        </td>
+                        <td>
+                            <span class="badge event-badge {% if 'FAILED' in ev_type or 'LOCKED' in ev_type or 'REUSE' in ev_type %}badge-danger{% elif 'SUCCESS' in ev_type or 'VERIFIED' in ev_type %}badge-verified{% endif %}">
+                                {{ ev_type }}
+                            </span>
+                        </td>
+                        <td class="mono-text">{{ log.ip_address | default('N/A') }}</td>
+                        <td class="ua-cell" title="{{ log.user_agent | default('') }}">{{ log.user_agent | default('N/A') }}</td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="4" class="empty-row">Sin registros recientes disponibles.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</article>
+
 <article class="card-panel danger-zone-card">
     <header>
         <h2>Zona de Peligro &mdash; Eliminar Cuenta</h2>

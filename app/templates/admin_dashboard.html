@@ -1,165 +1,403 @@
 {% extends "base.html" %}
 
-{% block title %}Panel de Administración | Portal de Cuentas{% endblock %}
+{% block title %}Centro de Mando Administrativo | Farmacia{% endblock %}
 
 {% block content %}
-<section class="dashboard-header">
-    <hgroup>
-        <h1>Panel de Administración</h1>
-        <p>Gestión de cuentas de usuario, roles y registro de actividad del sistema.</p>
-    </hgroup>
+<div id="admin-toast" class="admin-toast" role="status" aria-live="polite" hidden></div>
+
+<!-- ======================================================================
+     VISTA 1: TABLERO DE COMPRAS ESTILO POWER BI (POR DEFECTO)
+     ====================================================================== -->
+<section id="panel-compras" class="admin-tab-panel is-active" aria-labelledby="tab-title-compras">
+    <div class="panel-top-row">
+        <div>
+            <h1 id="tab-title-compras" class="panel-title">Tablero Ejecutivo de Compras</h1>
+            <p class="panel-subtitle">Análisis histórico y comparativo por período con drill-down interactivo</p>
+        </div>
+        <div class="drill-controls" id="compras-drill-controls" hidden>
+            <button type="button" id="btn-drill-up-year" class="btn-xs secondary outline">&larr; Volver a vista anual</button>
+            <button type="button" id="btn-drill-up-month" class="btn-xs secondary outline" hidden>&larr; Volver a vista mensual</button>
+            <span id="compras-drill-badge" class="badge badge-shield"></span>
+        </div>
+    </div>
+
+    <!-- Segmentadores (Slicers) -->
+    <article class="card-panel slicer-bar">
+        <div class="slicer-group">
+            <span class="slicer-label">Agrupar por</span>
+            <div class="segmented-control" role="group" aria-label="Agrupación temporal">
+                <button type="button" class="seg-btn is-active" data-group-by="year">Año</button>
+                <button type="button" class="seg-btn" data-group-by="month">Mes</button>
+                <button type="button" class="seg-btn" data-group-by="day">Día</button>
+            </div>
+        </div>
+
+        <div class="slicer-group slicer-dates">
+            <label class="slicer-field">
+                <span>Desde</span>
+                <input type="date" id="compras-date-from">
+            </label>
+            <label class="slicer-field">
+                <span>Hasta</span>
+                <input type="date" id="compras-date-to">
+            </label>
+            <button type="button" id="btn-compras-apply" class="btn-sm">Aplicar</button>
+        </div>
+
+        <div class="slicer-group slicer-presets">
+            <button type="button" class="btn-xs secondary outline" data-preset="all">Todo el histórico</button>
+            <button type="button" class="btn-xs secondary outline" data-preset="this_year">Este año</button>
+            <button type="button" class="btn-xs secondary outline" data-preset="last_30">Últimos 30 días</button>
+        </div>
+    </article>
+
+    <!-- Tarjetas KPI -->
+    <div class="kpi-grid">
+        <article class="kpi-card">
+            <span class="kpi-label">Total Comprado</span>
+            <strong class="kpi-value" id="kpi-total-amount">&mdash;</strong>
+            <span class="kpi-meta" id="kpi-delta-amount">Histórico completo</span>
+        </article>
+        <article class="kpi-card">
+            <span class="kpi-label">Compras / Facturas</span>
+            <strong class="kpi-value" id="kpi-invoice-count">&mdash;</strong>
+            <span class="kpi-meta" id="kpi-delta-invoices">Ítems: &mdash;</span>
+        </article>
+        <article class="kpi-card">
+            <span class="kpi-label">Ticket Promedio</span>
+            <strong class="kpi-value" id="kpi-avg-ticket">&mdash;</strong>
+            <span class="kpi-meta" id="kpi-delta-ticket">Por factura</span>
+        </article>
+        <article class="kpi-card">
+            <span class="kpi-label">Unidades Totales</span>
+            <strong class="kpi-value" id="kpi-total-units">&mdash;</strong>
+            <span class="kpi-meta" id="kpi-delta-units">Unidades facturadas</span>
+        </article>
+    </div>
+
+    <!-- Gráfico de Barras Adaptativo SVG + Tooltip -->
+    <article class="card-panel chart-card">
+        <header class="panel-header-flex">
+            <div>
+                <h2 id="compras-chart-title">Evolución de Compras por Año</h2>
+                <small id="compras-chart-hint">Haga clic sobre una barra de Año o Mes para explorar en detalle</small>
+            </div>
+            <span class="badge badge-shield" id="compras-period-count">0 períodos</span>
+        </header>
+
+        <div class="chart-stage" id="compras-chart-stage">
+            <svg id="compras-chart-svg" class="adaptive-bar-svg" role="img" aria-label="Gráfico de barras de compras"></svg>
+            <div id="compras-chart-tooltip" class="chart-tooltip" hidden></div>
+        </div>
+
+        <div class="overflow-auto series-table-wrap">
+            <table class="striped compact-table" id="compras-series-table">
+                <thead>
+                    <tr>
+                        <th>Período</th>
+                        <th class="num-col">Facturas</th>
+                        <th class="num-col">Líneas</th>
+                        <th class="num-col">Unidades</th>
+                        <th class="num-col">Ticket Prom.</th>
+                        <th class="num-col">Total Comprado</th>
+                    </tr>
+                </thead>
+                <tbody id="compras-series-tbody">
+                    <tr><td colspan="6" class="empty-row">Cargando datos...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </article>
 </section>
 
-<article class="card-panel">
-    <header class="panel-header-flex">
+<!-- ======================================================================
+     VISTA 2: EXPLORADOR DE PRODUCTOS Y COMPARADOR DE PRECIOS POR DROGA
+     ====================================================================== -->
+<section id="panel-productos" class="admin-tab-panel" hidden aria-labelledby="tab-title-productos">
+    <div class="panel-top-row">
         <div>
-            <h2>Gestión de Usuarios Registrados</h2>
-            <small>Administración de estado, roles y desbloqueo de cuentas</small>
+            <h1 id="tab-title-productos" class="panel-title">Productos y Comparador de Drogas</h1>
+            <p class="panel-subtitle">Historial por producto y comparativa de precios por principio activo entre marcas</p>
         </div>
-        <span class="badge badge-admin">Total: {{ users | length if users is defined else 0 }}</span>
-    </header>
+    </div>
 
-    <div class="overflow-auto">
-        <table class="striped admin-users-table">
-            <thead>
-                <tr>
-                    <th>Usuario / Email</th>
-                    <th>Rol</th>
-                    <th>Estado</th>
-                    <th>Intentos / Bloqueo</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% if users is defined and users %}
-                    {% for u in users %}
-                    {% set u_role = u.role.value if u.role.value is defined else u.role %}
+    <!-- Bloque 1: Explorador de Productos -->
+    <article class="card-panel">
+        <header class="panel-header-flex">
+            <div>
+                <h2>Explorador de Productos</h2>
+                <small>Alterna entre compras más recientes y ranking de mayor volumen</small>
+            </div>
+            <div class="segmented-control" role="group" aria-label="Modo de explorador de productos">
+                <button type="button" class="seg-btn is-active" data-prod-mode="last_purchase">Última compra</button>
+                <button type="button" class="seg-btn" data-prod-mode="most_purchased">Más comprados</button>
+            </div>
+        </header>
+
+        <div class="filter-bar">
+            <input type="search" id="prod-search" placeholder="Buscar por descripción, droga, laboratorio o código EAN..." class="filter-input-grow">
+            <input type="date" id="prod-date-from" title="Desde">
+            <input type="date" id="prod-date-to" title="Hasta">
+            <button type="button" id="btn-prod-search" class="btn-sm">Filtrar</button>
+            <button type="button" id="btn-prod-clear" class="btn-sm secondary outline">Limpiar</button>
+        </div>
+
+        <div class="overflow-auto">
+            <table class="striped compact-table">
+                <thead>
                     <tr>
-                        <td>
-                            <strong>{{ u.full_name | default('Sin nombre') }}</strong><br>
-                            <small class="mono-text">{{ u.email }}</small><br>
-                            <small class="muted-uuid">ID: {{ u.id }}</small>
-                        </td>
-                        <td>
-                            <span class="badge {% if u_role == 'admin' %}badge-admin{% else %}badge-user{% endif %}">
-                                {{ u_role | upper }}
-                            </span>
-                        </td>
-                        <td>
-                            {% if u.is_active %}
-                                <span class="badge badge-verified">ACTIVO</span>
-                            {% else %}
-                                <span class="badge badge-danger">INACTIVO</span>
-                            {% endif %}
-                            {% if u.is_verified %}
-                                <small class="verified-tag" title="Email verificado">&#10003; Verificado</small>
-                            {% else %}
-                                <small class="unverified-tag" title="Email no verificado">&#9888; No verificado</small>
-                            {% endif %}
-                        </td>
-                        <td>
-                            <span class="mono-text">Fallos: {{ u.failed_login_attempts | default(0) }}</span>
-                            {% if u.locked_until %}
-                                <br><span class="badge badge-danger">BLOQUEADO</span>
-                                <small class="mono-text block-until">
-                                    hasta {{ u.locked_until.strftime('%H:%M:%S UTC') if u.locked_until.strftime is defined else u.locked_until }}
-                                </small>
-                            {% endif %}
-                        </td>
-                        <td class="actions-cell">
-                            <div class="action-buttons-group">
-                                <form action="/admin/users/{{ u.id }}/status" method="POST" class="inline-form">
-                                    <input type="hidden" name="csrf_token" value="{{ csrf_token | default('') }}">
-                                    <input type="hidden" name="is_active" value="{{ 'false' if u.is_active else 'true' }}">
-                                    <button type="submit" class="btn-xs {% if u.is_active %}contrast outline{% else %}primary{% endif %}">
-                                        {{ 'Desactivar' if u.is_active else 'Activar' }}
-                                    </button>
-                                </form>
+                        <th>Código EAN</th>
+                        <th>Descripción / Droga</th>
+                        <th>Marca / Laboratorio</th>
+                        <th class="num-col">Último Precio</th>
+                        <th>Última Compra</th>
+                        <th class="num-col" id="prod-col-volume">Unidades / Frec.</th>
+                    </tr>
+                </thead>
+                <tbody id="prod-tbody">
+                    <tr><td colspan="6" class="empty-row">Seleccione la pestaña para cargar productos...</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="pagination-bar" id="prod-pagination"></div>
+    </article>
 
-                                <form action="/admin/users/{{ u.id }}/role" method="POST" class="inline-form">
-                                    <input type="hidden" name="csrf_token" value="{{ csrf_token | default('') }}">
-                                    <input type="hidden" name="role" value="{{ 'user' if u_role == 'admin' else 'admin' }}">
-                                    <button type="submit" class="btn-xs secondary outline">
-                                        Rol &rarr; {{ 'USER' if u_role == 'admin' else 'ADMIN' }}
-                                    </button>
-                                </form>
+    <!-- Bloque 2: Comparador de Precios por Droga -->
+    <article class="card-panel">
+        <header class="panel-header-flex">
+            <div>
+                <h2>Comparador de Precios por Droga entre Marcas</h2>
+                <small>Compare todas las marcas y laboratorios ordenados de menor a mayor precio unitario</small>
+            </div>
+            <span class="badge badge-verified" id="droga-selected-badge" hidden></span>
+        </header>
 
-                                {% if u.locked_until or (u.failed_login_attempts is defined and u.failed_login_attempts > 0) %}
-                                <form action="/admin/users/{{ u.id }}/unlock" method="POST" class="inline-form">
-                                    <input type="hidden" name="csrf_token" value="{{ csrf_token | default('') }}">
-                                    <input type="hidden" name="unlock_account" value="true">
-                                    <button type="submit" class="btn-xs warning-btn">
-                                        Desbloquear
-                                    </button>
-                                </form>
+        <div class="filter-bar">
+            <input type="search" id="droga-search" placeholder="Buscar droga / principio activo (ej. IBUPROFENO, PARACETAMOL, AMOXICILINA)..." class="filter-input-grow">
+            <input type="date" id="droga-date-from" title="Desde (opcional)">
+            <input type="date" id="droga-date-to" title="Hasta (opcional)">
+            <button type="button" id="btn-droga-search" class="btn-sm">Comparar</button>
+        </div>
+
+        <div class="drug-chips-wrap" id="droga-suggestions"></div>
+
+        <div class="overflow-auto">
+            <table class="striped compact-table">
+                <thead>
+                    <tr>
+                        <th>Marca / Laboratorio y Presentación</th>
+                        <th>Código EAN</th>
+                        <th class="num-col">Último Precio</th>
+                        <th class="num-col">Mín / Máx Histórico</th>
+                        <th>Brecha vs. Más Económica</th>
+                        <th>Última Compra</th>
+                    </tr>
+                </thead>
+                <tbody id="droga-tbody">
+                    <tr><td colspan="6" class="empty-row">Busque o seleccione una droga para comparar precios entre marcas.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </article>
+</section>
+
+<!-- ======================================================================
+     VISTA 3: ADMINISTRACIÓN DE USUARIOS
+     ====================================================================== -->
+<section id="panel-users" class="admin-tab-panel" hidden aria-labelledby="tab-title-users">
+    <div class="panel-top-row">
+        <div>
+            <h1 id="tab-title-users" class="panel-title">Administración de Usuarios</h1>
+            <p class="panel-subtitle">Control de cuentas activas, correos electrónicos, roles RBAC y verificación</p>
+        </div>
+    </div>
+
+    <div class="kpi-grid kpi-grid-4">
+        <article class="kpi-card kpi-compact">
+            <span class="kpi-label">Total Usuarios</span>
+            <strong class="kpi-value" id="users-sum-total">{{ users | length if users is defined else 0 }}</strong>
+        </article>
+        <article class="kpi-card kpi-compact">
+            <span class="kpi-label">Administradores</span>
+            <strong class="kpi-value" id="users-sum-admins">&mdash;</strong>
+        </article>
+        <article class="kpi-card kpi-compact">
+            <span class="kpi-label">Activos</span>
+            <strong class="kpi-value kpi-green" id="users-sum-active">&mdash;</strong>
+        </article>
+        <article class="kpi-card kpi-compact">
+            <span class="kpi-label">Deshabilitados</span>
+            <strong class="kpi-value kpi-red" id="users-sum-disabled">&mdash;</strong>
+        </article>
+    </div>
+
+    <article class="card-panel">
+        <div class="filter-bar">
+            <input type="search" id="users-search" placeholder="Buscador en vivo por correo o nombre..." class="filter-input-grow">
+            <select id="users-role-filter" aria-label="Filtrar por rol">
+                <option value="">Todos los roles</option>
+                <option value="admin">Admin</option>
+                <option value="user">User</option>
+            </select>
+            <select id="users-status-filter" aria-label="Filtrar por estado">
+                <option value="">Todos los estados</option>
+                <option value="true">Activos</option>
+                <option value="false">Deshabilitados</option>
+            </select>
+            <button type="button" id="btn-users-refresh" class="btn-sm secondary outline">Actualizar</button>
+        </div>
+
+        <div class="overflow-auto">
+            <table class="striped admin-users-table">
+                <thead>
+                    <tr>
+                        <th>Usuario / Email</th>
+                        <th>Rol</th>
+                        <th>Estado</th>
+                        <th>Seguridad / Bloqueo</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="users-tbody">
+                    {% if users is defined and users %}
+                        {% for u in users %}
+                        {% set u_role = u.role.value if u.role.value is defined else u.role %}
+                        <tr>
+                            <td>
+                                <strong>{{ u.full_name | default('Sin nombre') }}</strong><br>
+                                <small class="mono-text">{{ u.email }}</small>
+                            </td>
+                            <td>
+                                <span class="badge {% if u_role == 'admin' %}badge-admin{% else %}badge-user{% endif %}">{{ u_role | upper }}</span>
+                            </td>
+                            <td>
+                                {% if u.is_active %}
+                                    <span class="badge badge-verified">ACTIVO</span>
+                                {% else %}
+                                    <span class="badge badge-danger">DESHABILITADO</span>
                                 {% endif %}
-                            </div>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                {% else %}
-                    <tr>
-                        <td colspan="5" class="empty-row">No hay usuarios disponibles para mostrar.</td>
-                    </tr>
-                {% endif %}
-            </tbody>
-        </table>
-    </div>
-</article>
-
-<article class="card-panel">
-    <header class="panel-header-flex">
-        <div>
-            <h2>Historial de Actividad del Sistema</h2>
-            <small>Registro de eventos de inicio de sesión, cierres de sesión y cambios en las cuentas</small>
+                                {% if u.is_verified %}
+                                    <small class="verified-tag">&#10003; Verificado</small>
+                                {% else %}
+                                    <small class="unverified-tag">&#9888; No verificado</small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="mono-text">Fallos: {{ u.failed_login_attempts | default(0) }}</span>
+                            </td>
+                            <td class="actions-cell">
+                                <span class="mono-text">Cargando acciones...</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr><td colspan="5" class="empty-row">Cargando usuarios...</td></tr>
+                    {% endif %}
+                </tbody>
+            </table>
         </div>
-        <span class="badge badge-shield">Registros: {{ audit_logs | length if audit_logs is defined else 0 }}</span>
-    </header>
+    </article>
+</section>
 
-    <div class="overflow-auto">
-        <table class="striped audit-table">
-            <thead>
-                <tr>
-                    <th>Fecha / Hora</th>
-                    <th>Evento</th>
-                    <th>Usuario</th>
-                    <th>Dirección IP</th>
-                    <th>Dispositivo / Navegador</th>
-                    <th>Detalles</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% if audit_logs is defined and audit_logs %}
-                    {% for log in audit_logs %}
-                    {% set ev_type = log.event_type.value if log.event_type.value is defined else log.event_type %}
-                    <tr>
-                        <td class="mono-text nowrap-cell">
-                            {{ log.created_at.strftime('%Y-%m-%d %H:%M:%S UTC') if log.created_at is defined and log.created_at.strftime is defined else log.created_at }}
-                        </td>
-                        <td>
-                            <span class="badge event-badge {% if 'FAILED' in ev_type or 'LOCKED' in ev_type or 'REUSE' in ev_type %}badge-danger{% elif 'SUCCESS' in ev_type or 'VERIFIED' in ev_type %}badge-verified{% endif %}">
-                                {{ ev_type }}
-                            </span>
-                        </td>
-                        <td class="mono-text">
-                            {{ log.user_id if log.user_id else 'Sistema' }}
-                        </td>
-                        <td class="mono-text">{{ log.ip_address | default('N/A') }}</td>
-                        <td class="ua-cell" title="{{ log.user_agent | default('') }}">
-                            {{ log.user_agent | default('N/A') }}
-                        </td>
-                        <td class="details-cell">
-                            <code>{{ log.details | tojson if log.details is mapping else (log.details | default('{}')) }}</code>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                {% else %}
-                    <tr>
-                        <td colspan="6" class="empty-row">No se encontraron registros de actividad.</td>
-                    </tr>
-                {% endif %}
-            </tbody>
-        </table>
+<!-- ======================================================================
+     VISTA 4: VISOR FORENSE DE LOGS DE AUDITORÍA
+     ====================================================================== -->
+<section id="panel-logs" class="admin-tab-panel" hidden aria-labelledby="tab-title-logs">
+    <div class="panel-top-row">
+        <div>
+            <h1 id="tab-title-logs" class="panel-title">Visor Forense de Auditoría</h1>
+            <p class="panel-subtitle">Registro inmutable de eventos de autenticación, cambios administrativos y seguridad (25 por página)</p>
+        </div>
+        <span class="badge badge-shield" id="logs-total-badge">0 registros</span>
     </div>
-</article>
+
+    <article class="card-panel">
+        <div class="filter-bar">
+            <select id="logs-event-type" aria-label="Tipo de evento">
+                <option value="">Todos los eventos</option>
+                <option value="LOGIN_SUCCESS">LOGIN_SUCCESS</option>
+                <option value="LOGIN_FAILED">LOGIN_FAILED</option>
+                <option value="LOGOUT">LOGOUT</option>
+                <option value="REGISTER">REGISTER</option>
+                <option value="EMAIL_VERIFIED">EMAIL_VERIFIED</option>
+                <option value="PASSWORD_CHANGED">PASSWORD_CHANGED</option>
+                <option value="PASSWORD_RESET_REQUEST">PASSWORD_RESET_REQUEST</option>
+                <option value="PROFILE_UPDATED">PROFILE_UPDATED</option>
+                <option value="ADMIN_ACTION">ADMIN_ACTION</option>
+                <option value="ACCOUNT_LOCKED">ACCOUNT_LOCKED</option>
+                <option value="ACCOUNT_DELETED">ACCOUNT_DELETED</option>
+                <option value="TOKEN_REFRESH">TOKEN_REFRESH</option>
+                <option value="TOKEN_REUSE_DETECTED">TOKEN_REUSE_DETECTED</option>
+            </select>
+            <input type="search" id="logs-user" placeholder="Usuario o correo..." class="filter-input-sm">
+            <input type="search" id="logs-ip" placeholder="IP (ej. 127.0.0.1)" class="filter-input-xs">
+            <input type="date" id="logs-date-from" title="Desde">
+            <input type="date" id="logs-date-to" title="Hasta">
+            <button type="button" id="btn-logs-filter" class="btn-sm">Filtrar</button>
+            <button type="button" id="btn-logs-clear" class="btn-sm secondary outline">Limpiar</button>
+        </div>
+
+        <div class="overflow-auto">
+            <table class="striped audit-table">
+                <thead>
+                    <tr>
+                        <th>Fecha / Hora</th>
+                        <th>Evento</th>
+                        <th>Usuario Afectado</th>
+                        <th>IP Cliente</th>
+                        <th>Detalle del Evento</th>
+                    </tr>
+                </thead>
+                <tbody id="logs-tbody">
+                    {% if audit_logs is defined and audit_logs %}
+                        {% for log in audit_logs %}
+                        {% set ev_type = log.event_type.value if log.event_type.value is defined else log.event_type %}
+                        <tr>
+                            <td class="mono-text nowrap-cell">{{ log.created_at }}</td>
+                            <td><span class="badge event-badge">{{ ev_type }}</span></td>
+                            <td class="mono-text">{{ log.user_id if log.user_id else 'Sistema' }}</td>
+                            <td class="mono-text">{{ log.ip_address | default('N/A') }}</td>
+                            <td class="details-cell"><code>{{ log.details | tojson if log.details is mapping else (log.details | default('{}')) }}</code></td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr><td colspan="5" class="empty-row">Cargando logs de auditoría...</td></tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+        <div class="pagination-bar" id="logs-pagination"></div>
+    </article>
+</section>
+
+<!-- Modal Edición de Correo Electrónico -->
+<dialog id="edit-email-modal" aria-labelledby="edit-email-modal-title">
+    <article class="modal-card-compact">
+        <header>
+            <button type="button" aria-label="Cerrar" rel="prev" id="close-edit-email-modal"></button>
+            <h3 id="edit-email-modal-title">Cambiar Correo Electrónico</h3>
+        </header>
+        <form id="edit-email-form" autocomplete="off">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token | default('') }}">
+            <input type="hidden" id="edit-email-user-id" value="">
+            <p class="muted-hint">
+                Usuario: <strong id="edit-email-user-name"></strong><br>
+                Correo actual: <code id="edit-email-current"></code>
+            </p>
+            <label for="edit-email-input">
+                Nuevo correo electrónico *
+                <input type="email" id="edit-email-input" required placeholder="nuevo@correo.com" maxlength="255">
+            </label>
+            <small id="edit-email-error" class="password-match-feedback match-error" hidden></small>
+            <footer class="modal-actions-footer">
+                <button type="button" class="secondary outline" id="cancel-edit-email-modal">Cancelar</button>
+                <button type="submit" id="save-edit-email-btn">Guardar Nuevo Correo</button>
+            </footer>
+        </form>
+    </article>
+</dialog>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/admin_panel.js?v=4" defer></script>
 {% endblock %}

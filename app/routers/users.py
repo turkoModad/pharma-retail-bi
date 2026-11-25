@@ -43,6 +43,7 @@ from app.services.user_service import (
     delete_own_account,
     enforce_anti_idor,
     get_user_recent_logins,
+    revoke_all_user_sessions,
     update_own_profile,
 )
 
@@ -205,6 +206,42 @@ async def get_my_recent_logins(
     """Retorna los últimos eventos de acceso y seguridad de la cuenta propia."""
     logs = await get_user_recent_logins(db=db, user_id=current_user.id, limit=limit)
     return [AuditLogRead.model_validate(entry) for entry in logs]
+
+
+@router.post("/me/revoke-sessions")
+async def revoke_my_sessions(
+    request: Request,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> Any:
+    """Revoca todas las sesiones y refresh tokens activos del usuario autenticado."""
+    ip_address = extract_client_ip(request)
+    user_agent = extract_user_agent(request)
+    revoked_count = await revoke_all_user_sessions(
+        db=db,
+        current_user=current_user,
+        ip_address=ip_address,
+        user_agent=user_agent,
+    )
+    if is_html_form_request(request):
+        redirect_resp = RedirectResponse(
+            url="/login?logged_out=1",
+            status_code=status.HTTP_303_SEE_OTHER,
+        )
+        clear_auth_cookies(redirect_resp)
+        return redirect_resp
+
+    from fastapi.responses import JSONResponse
+    resp = JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content={
+            "status": "ok",
+            "revoked_tokens_count": revoked_count,
+            "message": "Todas sus sesiones activas han sido cerradas.",
+        },
+    )
+    clear_auth_cookies(resp)
+    return resp
 
 
 @router.delete(

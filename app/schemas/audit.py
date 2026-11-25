@@ -28,6 +28,8 @@ class AuditLogRead(BaseModel):
     event_type: str
     ip_address: str
     user_agent: str | None = None
+    user_email: str | None = None
+    user_name: str | None = None
     details: Dict[str, Any] = Field(default_factory=dict)
     created_at: datetime
 
