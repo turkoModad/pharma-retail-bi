@@ -1,0 +1,315 @@
+{% extends "base.html" %}
+
+{% block title %}Mi Perfil y Seguridad | Portal de Cuentas{% endblock %}
+
+{% block content %}
+<div class="profile-compact-wrap">
+{% set profile_user = user | default(current_user) %}
+<section class="dashboard-header">
+    <hgroup>
+        <h1>Perfil de Usuario y Seguridad</h1>
+        <p>Gestión de datos personales y seguridad de su cuenta.</p>
+    </hgroup>
+</section>
+
+{% if dev_verification_link %}
+<div class="dev-link-box" role="region" aria-label="Verificación pendiente">
+    <strong>Verificación Pendiente de Correo:</strong>
+    <p class="mono-link">
+        <a href="{{ dev_verification_link }}" role="button" class="secondary outline btn-sm">Verificar Cuenta Ahora</a>
+        <code>{{ dev_verification_link }}</code>
+    </p>
+</div>
+{% endif %}
+
+{% if profile_user %}
+<article class="status-banner">
+    <div class="grid">
+        <div>
+            <small class="label-muted">Última conexión</small>
+            <p>
+                {% if last_connection %}
+                    {{ last_connection.strftime('%Y-%m-%d %H:%M:%S UTC') if last_connection.strftime is defined else last_connection }}
+                {% else %}
+                    Primer inicio de sesión
+                {% endif %}
+            </p>
+        </div>
+        <div>
+            <small class="label-muted">Correo Electrónico</small>
+            <p><strong>{{ profile_user.email }}</strong></p>
+        </div>
+        <div>
+            <small class="label-muted">Rol</small>
+            <p>
+                {% set u_role = profile_user.role.value if profile_user.role.value is defined else profile_user.role %}
+                <span class="badge {% if u_role == 'admin' %}badge-admin{% else %}badge-user{% endif %}">
+                    {{ u_role | upper }}
+                </span>
+            </p>
+        </div>
+        <div>
+            <small class="label-muted">Estado de Email</small>
+            <p>
+                {% if profile_user.is_verified %}
+                    <span class="badge badge-verified">Verificado</span>
+                {% else %}
+                    <span class="badge badge-unverified">Pendiente de Verificación</span>
+                {% endif %}
+            </p>
+        </div>
+    </div>
+</article>
+
+<div class="grid profile-forms-grid">
+    <article class="card-panel">
+        <header>
+            <h2>Datos Personales</h2>
+            <small>Tus datos están protegidos y encriptados</small>
+        </header>
+
+        <form action="/users/me/profile" method="POST" autocomplete="on">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token | default('') }}">
+
+            <label for="full_name">
+                Nombre completo
+                <input
+                    type="text"
+                    id="full_name"
+                    name="full_name"
+                    value="{{ profile_user.full_name | default('') }}"
+                    minlength="2"
+                    maxlength="150"
+                    required
+                >
+            </label>
+
+            <label for="phone">
+                Teléfono
+                <input
+                    type="tel"
+                    id="phone"
+                    name="phone"
+                    value="{{ profile_user.phone | default('', true) }}"
+                    maxlength="50"
+                    placeholder="+54 9 11 ..."
+                >
+            </label>
+
+            <label for="document_id">
+                Documento / DNI
+                <input
+                    type="text"
+                    id="document_id"
+                    name="document_id"
+                    value="{{ profile_user.document_id | default('', true) }}"
+                    maxlength="60"
+                    placeholder="Documento de identidad"
+                >
+            </label>
+
+            <label for="address">
+                Dirección Postal
+                <input
+                    type="text"
+                    id="address"
+                    name="address"
+                    value="{{ profile_user.address | default('', true) }}"
+                    maxlength="300"
+                    placeholder="Calle, número, ciudad"
+                >
+            </label>
+
+            <button type="submit">Guardar Cambios de Perfil</button>
+        </form>
+    </article>
+
+    <article class="card-panel">
+        <header>
+            <h2>Cambiar Contraseña</h2>
+            <small>Actualizar su contraseña cerrará automáticamente las sesiones en otros dispositivos</small>
+        </header>
+
+        <form action="/users/me/password" method="POST" autocomplete="off" id="change-password-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token | default('') }}">
+
+            <label for="current_password">Contraseña actual *</label>
+            <div class="password-input-wrapper">
+                <input
+                    type="password"
+                    id="current_password"
+                    name="current_password"
+                    placeholder="Ingrese su contraseña actual"
+                    required
+                    autocomplete="current-password"
+                >
+                <button
+                    type="button"
+                    class="password-toggle-btn"
+                    data-toggle-password="current_password"
+                    aria-label="Mostrar contraseña"
+                    aria-pressed="false"
+                >
+                    <svg class="icon-eye" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                    <svg class="icon-eye-off" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" hidden>
+                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                        <line x1="1" y1="1" x2="23" y2="23"></line>
+                    </svg>
+                </button>
+            </div>
+
+            <label for="new_password">Nueva contraseña *</label>
+            <div class="password-input-wrapper">
+                <input
+                    type="password"
+                    id="new_password"
+                    name="new_password"
+                    placeholder="Mín. 10 caracteres, mayús, minús, número y símbolo"
+                    minlength="10"
+                    maxlength="128"
+                    required
+                    autocomplete="new-password"
+                >
+                <button
+                    type="button"
+                    class="password-toggle-btn"
+                    data-toggle-password="new_password"
+                    aria-label="Mostrar contraseña"
+                    aria-pressed="false"
+                >
+                    <svg class="icon-eye" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                    <svg class="icon-eye-off" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" hidden>
+                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                        <line x1="1" y1="1" x2="23" y2="23"></line>
+                    </svg>
+                </button>
+            </div>
+
+            <label for="confirm_password">Confirmar nueva contraseña *</label>
+            <div class="password-input-wrapper">
+                <input
+                    type="password"
+                    id="confirm_password"
+                    name="confirm_password"
+                    placeholder="Repita la nueva contraseña"
+                    minlength="10"
+                    maxlength="128"
+                    required
+                    autocomplete="new-password"
+                >
+                <button
+                    type="button"
+                    class="password-toggle-btn"
+                    data-toggle-password="confirm_password"
+                    aria-label="Mostrar contraseña"
+                    aria-pressed="false"
+                >
+                    <svg class="icon-eye" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                    <svg class="icon-eye-off" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" hidden>
+                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                        <line x1="1" y1="1" x2="23" y2="23"></line>
+                    </svg>
+                </button>
+            </div>
+            <small id="profile-match-feedback" class="password-match-feedback" aria-live="polite"></small>
+
+            <div class="password-policy-box compact-policy">
+                <small>
+                    Requisitos: <strong>&ge; 10 caracteres</strong>, al menos 1 mayúscula, 1 minúscula, 1 dígito y 1 símbolo especial.
+                </small>
+            </div>
+
+            <button type="submit" class="secondary">Actualizar Contraseña</button>
+        </form>
+    </article>
+</div>
+{% endif %}
+
+{% if profile_user %}
+<article class="card-panel danger-zone-card">
+    <header>
+        <h2>Zona de Peligro &mdash; Eliminar Cuenta</h2>
+        <small>Esta acción es permanente e irreversible. Se cerrarán todas sus sesiones activas y se eliminará su cuenta.</small>
+    </header>
+    <p>
+        Si ya no desea utilizar este servicio, puede solicitar la baja definitiva de su cuenta.
+        Por seguridad, deberá confirmar su contraseña actual y escribir la palabra de verificación.
+    </p>
+    <button type="button" id="open-delete-account-modal" class="danger-btn">
+        Eliminar mi cuenta
+    </button>
+</article>
+
+<dialog id="delete-account-modal" aria-labelledby="delete-modal-title">
+    <article>
+        <header>
+            <button type="button" aria-label="Cerrar" rel="prev" id="close-delete-account-modal"></button>
+            <h3 id="delete-modal-title">Confirmar Eliminación Permanente de Cuenta</h3>
+        </header>
+        <p class="danger-warning-text">
+            <strong>Atención:</strong> Esta acción no se puede deshacer. Se revocarán todas sus sesiones y perderá el acceso a su cuenta de forma definitiva.
+        </p>
+        <form action="/users/me/delete" method="POST" autocomplete="off" id="delete-account-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token | default('') }}">
+
+            <label for="delete_current_password">1. Ingrese su contraseña actual *</label>
+            <div class="password-input-wrapper">
+                <input
+                    type="password"
+                    id="delete_current_password"
+                    name="current_password"
+                    placeholder="Su contraseña actual"
+                    required
+                    autocomplete="off"
+                >
+                <button
+                    type="button"
+                    class="password-toggle-btn"
+                    data-toggle-password="delete_current_password"
+                    aria-label="Mostrar contraseña"
+                    aria-pressed="false"
+                >
+                    <svg class="icon-eye" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                    <svg class="icon-eye-off" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" hidden>
+                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                        <line x1="1" y1="1" x2="23" y2="23"></line>
+                    </svg>
+                </button>
+            </div>
+
+            <label for="delete_confirmation_word">
+                2. Escriba <code>ELIMINAR</code> para confirmar *
+                <input
+                    type="text"
+                    id="delete_confirmation_word"
+                    name="confirmation"
+                    placeholder="Escriba ELIMINAR en mayúsculas"
+                    required
+                    autocomplete="off"
+                >
+            </label>
+
+            <footer class="modal-actions-footer">
+                <button type="button" class="secondary outline" id="cancel-delete-account-modal">Cancelar</button>
+                <button type="submit" class="danger-btn" id="confirm-delete-account-btn" disabled>
+                    Eliminar cuenta definitivamente
+                </button>
+            </footer>
+        </form>
+    </article>
+</dialog>
+{% endif %}
+</div>
+{% endblock %}

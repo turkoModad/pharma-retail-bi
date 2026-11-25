@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}Iniciar Sesión | Portal de Cuentas{% endblock %}
+
+{% block content %}
+<section class="auth-section">
+    <article class="auth-card">
+        <header>
+            <hgroup>
+                <h1>Iniciar Sesión</h1>
+                <p>Acceda de forma segura a su cuenta</p>
+            </hgroup>
+        </header>
+
+        {% if dev_verification_link %}
+        <div class="dev-link-box" role="region" aria-label="Enlace de verificación de desarrollo">
+            <strong>Enlace de Verificación de Correo:</strong>
+            <p class="mono-link"><a href="{{ dev_verification_link }}" id="dev-verification-link">{{ dev_verification_link }}</a></p>
+        </div>
+        {% endif %}
+
+        {% if dev_reset_link %}
+        <div class="dev-link-box" role="region" aria-label="Enlace de recuperación de desarrollo">
+            <strong>Enlace de Recuperación de Contraseña:</strong>
+            <p class="mono-link"><a href="{{ dev_reset_link }}" id="dev-reset-link">{{ dev_reset_link }}</a></p>
+        </div>
+        {% endif %}
+
+        <form action="/auth/login" method="POST" autocomplete="on" id="login-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token | default('') }}">
+
+            <label for="email">
+                Correo electrónico
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    placeholder="usuario@ejemplo.com"
+                    value="{{ email | default('') }}"
+                    required
+                    autocomplete="email"
+                    autofocus
+                >
+            </label>
+
+            <label for="password">Contraseña</label>
+            <div class="password-input-wrapper">
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    placeholder="Ingrese su contraseña"
+                    required
+                    autocomplete="current-password"
+                >
+                <button
+                    type="button"
+                    class="password-toggle-btn"
+                    data-toggle-password="password"
+                    aria-label="Mostrar contraseña"
+                    aria-pressed="false"
+                >
+                    <svg class="icon-eye" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                    <svg class="icon-eye-off" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" hidden>
+                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                        <line x1="1" y1="1" x2="23" y2="23"></line>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="form-helper-row">
+                <a href="/forgot-password" class="secondary-link">¿Olvidó su contraseña?</a>
+            </div>
+
+            <button type="submit" class="btn-primary-full">Ingresar de forma segura</button>
+        </form>
+
+        <footer class="auth-card-footer">
+            <span>¿No dispone de una cuenta todavía?</span>
+            <a href="/register">Crear cuenta nueva</a>
+        </footer>
+    </article>
+</section>
+{% endblock %}

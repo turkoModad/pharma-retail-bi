@@ -1,0 +1,875 @@
+/* ==========================================================================
+   Sistema de Diseño Compacto - Paleta Verde Farmacia (#307D14)
+   Sobre Pico.css v2: alta densidad visual, WCAG AA y ajuste a 100dvh
+   ========================================================================== */
+
+:root,
+[data-theme="light"] {
+    /* Paleta Verde Farmacia */
+    --auth-primary: #307D14;
+    --auth-primary-hover: #25620F;
+    --auth-primary-active: #1C4B0B;
+    --auth-primary-soft: #EBF5E7;
+    --auth-primary-border-soft: #B7DCA9;
+    --auth-focus-ring: 0 0 0 3px rgba(48, 125, 20, 0.20);
+
+    /* Superficies y Neutros */
+    --auth-bg-page: #F4F6F4;
+    --auth-card-bg: #FFFFFF;
+    --auth-surface-muted: #F7F9F7;
+    --auth-border-subtle: #DCE3DC;
+    --auth-border-input: #C6D1C6;
+    --auth-text-main: #1A241A;
+    --auth-text-muted: #526052;
+
+    /* Estados Semánticos */
+    --auth-success-bg: #EBF5E7;
+    --auth-success-border: #307D14;
+    --auth-success-text: #1C4B0B;
+    --auth-error-bg: #FEF2F2;
+    --auth-error-border: #DC2626;
+    --auth-error-text: #991B1B;
+    --auth-warn-bg: #FFFBEB;
+    --auth-warn-border: #D97706;
+    --auth-warn-text: #92400E;
+    --auth-info-bg: #EBF5E7;
+    --auth-info-border: #307D14;
+    --auth-info-text: #1C4B0B;
+
+    /* Overrides Pico.css v2 */
+    --pico-primary: #307D14;
+    --pico-primary-background: #307D14;
+    --pico-primary-border: #307D14;
+    --pico-primary-underline: rgba(48, 125, 20, 0.45);
+    --pico-primary-hover: #25620F;
+    --pico-primary-hover-background: #25620F;
+    --pico-primary-hover-border: #25620F;
+    --pico-primary-hover-underline: #25620F;
+    --pico-primary-focus: rgba(48, 125, 20, 0.20);
+    --pico-primary-inverse: #FFFFFF;
+    --pico-background-color: #F4F6F4;
+    --pico-card-background-color: #FFFFFF;
+    --pico-card-border-color: #DCE3DC;
+    --pico-form-element-border-color: #C6D1C6;
+    --pico-form-element-active-border-color: #307D14;
+    --pico-form-element-focus-color: rgba(48, 125, 20, 0.20);
+    --pico-color: #1A241A;
+    --pico-muted-color: #526052;
+    --pico-muted-border-color: #DCE3DC;
+    --pico-border-radius: 6px;
+}
+
+/* Base y Layout General */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body {
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--auth-bg-page);
+    color: var(--auth-text-main);
+    margin: 0;
+}
+
+.main-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding-top: 0.35rem;
+    padding-bottom: 0.35rem;
+}
+
+/* Enlaces y Foco Accesible */
+a {
+    color: var(--auth-primary);
+}
+
+a:hover {
+    color: var(--auth-primary-hover);
+}
+
+a:focus-visible,
+button:focus-visible,
+[role="button"]:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: none;
+    box-shadow: var(--auth-focus-ring);
+}
+
+/* Barra de Navegación Compacta */
+.nav-header {
+    background-color: var(--auth-card-bg);
+    border-bottom: 1px solid var(--auth-border-subtle);
+    box-shadow: 0 1px 2px rgba(26, 36, 26, 0.04);
+    padding: 0.2rem 0;
+}
+
+.nav-header nav ul {
+    margin: 0;
+}
+
+.nav-header nav li {
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+    font-size: 0.875rem;
+}
+
+.brand-logo {
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    color: var(--auth-primary-active);
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.brand-logo::before {
+    content: "+";
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.35rem;
+    height: 1.35rem;
+    border-radius: 5px;
+    background-color: var(--auth-primary);
+    color: #FFFFFF;
+    font-size: 0.95rem;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.user-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: var(--auth-primary-soft);
+    border: 1px solid var(--auth-primary-border-soft);
+    padding: 0.18rem 0.55rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    color: var(--auth-primary-active);
+}
+
+.inline-form {
+    display: inline-block;
+    margin: 0;
+}
+
+.inline-form button {
+    margin-bottom: 0;
+}
+
+/* Tipografía y Controles de Formulario Compactos */
+label {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--auth-text-main);
+    margin-bottom: 0.2rem;
+}
+
+form label:has(input),
+form label:has(select),
+form label:has(textarea) {
+    margin-bottom: 0.65rem;
+}
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]):not([type="hidden"]),
+select,
+textarea {
+    padding: 0.42rem 0.68rem;
+    font-size: 0.875rem;
+    line-height: 1.35;
+    border-radius: 6px;
+    border: 1px solid var(--auth-border-input);
+    background-color: #FFFFFF;
+    color: var(--auth-text-main);
+    height: auto;
+    margin-bottom: 0.65rem;
+}
+
+label > input:not([type="checkbox"]):not([type="radio"]),
+label > select,
+label > textarea {
+    margin-top: 0.2rem;
+    margin-bottom: 0;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: var(--auth-primary);
+    box-shadow: var(--auth-focus-ring);
+}
+
+/* Botones */
+button[type="submit"],
+[role="button"]:not(.outline):not(.secondary):not(.contrast):not(.danger-btn):not(.warning-btn) {
+    background-color: var(--auth-primary);
+    border-color: var(--auth-primary);
+    color: #FFFFFF;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    border-radius: 6px;
+    line-height: 1.3;
+}
+
+button[type="submit"]:hover:not(:disabled),
+[role="button"]:not(.outline):not(.secondary):not(.contrast):not(.danger-btn):not(.warning-btn):hover {
+    background-color: var(--auth-primary-hover);
+    border-color: var(--auth-primary-hover);
+}
+
+button[type="submit"]:active:not(:disabled),
+[role="button"]:not(.outline):not(.secondary):not(.contrast):not(.danger-btn):not(.warning-btn):active {
+    background-color: var(--auth-primary-active);
+    border-color: var(--auth-primary-active);
+}
+
+button.secondary:not(.outline) {
+    background-color: var(--auth-primary-soft);
+    border-color: var(--auth-primary-border-soft);
+    color: var(--auth-primary-active);
+}
+
+button.secondary:not(.outline):hover:not(:disabled) {
+    background-color: #DCEFD5;
+    border-color: var(--auth-primary);
+}
+
+.btn-sm {
+    padding: 0.3rem 0.65rem !important;
+    font-size: 0.8rem !important;
+    border-radius: 6px;
+}
+
+.btn-xs {
+    padding: 0.22rem 0.5rem !important;
+    font-size: 0.74rem !important;
+    line-height: 1.2;
+    width: auto;
+    margin-bottom: 0;
+    border-radius: 5px;
+}
+
+.btn-primary-full {
+    width: 100%;
+    margin-top: 0.35rem;
+    margin-bottom: 0;
+}
+
+.warning-btn {
+    background-color: #D97706;
+    border-color: #D97706;
+    color: #FFFFFF;
+}
+
+.warning-btn:hover:not(:disabled) {
+    background-color: #B45309;
+    border-color: #B45309;
+}
+
+.danger-btn {
+    background-color: #DC2626;
+    border-color: #DC2626;
+    color: #FFFFFF;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    border-radius: 6px;
+}
+
+.danger-btn:hover:not(:disabled) {
+    background-color: #B91C1C;
+    border-color: #B91C1C;
+}
+
+/* Contraseña con Toggle Integrado */
+.password-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.65rem;
+}
+
+.password-input-wrapper input {
+    padding-right: 2.35rem;
+    margin-bottom: 0;
+    width: 100%;
+}
+
+.password-toggle-btn {
+    position: absolute;
+    right: 0.3rem;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    background: transparent;
+    border: none;
+    color: var(--auth-text-muted);
+    padding: 0.2rem;
+    margin: 0;
+    width: 1.75rem;
+    height: 1.75rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: none;
+    border-radius: 4px;
+}
+
+.password-toggle-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+.password-toggle-btn:hover,
+.password-toggle-btn:focus-visible {
+    color: var(--auth-primary);
+    background: var(--auth-primary-soft);
+    box-shadow: none;
+}
+
+.password-toggle-btn.is-visible {
+    color: var(--auth-primary);
+}
+
+.password-match-feedback {
+    display: block;
+    margin-top: -0.35rem;
+    margin-bottom: 0.45rem;
+    font-size: 0.76rem;
+    min-height: 0.95rem;
+}
+
+.password-match-feedback:empty {
+    display: none;
+}
+
+.password-match-feedback.match-ok {
+    color: var(--auth-success-text);
+}
+
+.password-match-feedback.match-error {
+    color: var(--auth-error-text);
+}
+
+/* Contenedor Principal de Autenticación (100dvh sin scroll) */
+.auth-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 0;
+    padding: 0.5rem 1rem;
+    width: 100%;
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 390px;
+    background-color: var(--auth-card-bg);
+    border: 1px solid var(--auth-border-subtle);
+    border-radius: 8px;
+    padding: 1.25rem 1.5rem;
+    margin: 0;
+    box-shadow: 0 6px 20px rgba(26, 36, 26, 0.06);
+}
+
+.auth-card-wide {
+    max-width: 480px;
+    padding: 1rem 1.35rem;
+}
+
+.auth-card-wide > header {
+    margin: 0 0 0.55rem 0;
+    padding: 0 0 0.45rem 0;
+}
+
+.auth-card-wide .auth-grid-2 {
+    gap: 0.5rem 0.65rem;
+    margin-bottom: 0.5rem;
+}
+
+.auth-card-wide .pii-fieldset {
+    padding: 0.45rem 0.65rem;
+    margin-bottom: 0.5rem;
+}
+
+.auth-card-wide .password-policy-box {
+    padding: 0.38rem 0.65rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.72rem;
+}
+
+.auth-card-wide > footer.auth-card-footer {
+    margin-top: 0.55rem;
+    padding-top: 0.5rem;
+}
+
+.auth-card > header {
+    background: transparent;
+    border-bottom: 1px solid var(--auth-border-subtle);
+    margin: 0 0 0.75rem 0;
+    padding: 0 0 0.55rem 0;
+}
+
+.auth-card hgroup {
+    margin-bottom: 0;
+}
+
+.auth-card h1,
+.auth-card h2 {
+    font-size: 1.25rem;
+    line-height: 1.25;
+    margin-bottom: 0.25rem;
+    color: var(--auth-text-main);
+}
+
+.auth-card > header p {
+    font-size: 0.8125rem;
+    line-height: 1.35;
+    color: var(--auth-text-muted);
+    margin-bottom: 0;
+}
+
+.auth-card > footer.auth-card-footer {
+    background: transparent;
+    border-top: 1px solid var(--auth-border-subtle);
+    margin: 0.75rem 0 0 0;
+    padding: 0.65rem 0 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8125rem;
+}
+
+.form-helper-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: -0.3rem;
+    margin-bottom: 0.6rem;
+    font-size: 0.8rem;
+}
+
+.muted-hint {
+    display: block;
+    font-size: 0.78rem;
+    color: var(--auth-text-muted);
+    margin-bottom: 0.65rem;
+    line-height: 1.35;
+}
+
+/* Grilla de 2 Columnas para /register */
+.auth-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.65rem;
+    margin-bottom: 0.65rem;
+}
+
+@media (min-width: 520px) {
+    .auth-grid-2 {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+.auth-grid-2 label,
+.auth-grid-2 .password-input-wrapper {
+    margin-bottom: 0;
+}
+
+.auth-grid-2 .password-match-feedback {
+    margin-top: 0.2rem;
+    margin-bottom: 0;
+}
+
+/* Fieldset para Datos Sensibles PII */
+.pii-fieldset {
+    border: 1px solid var(--auth-primary-border-soft);
+    border-radius: 6px;
+    padding: 0.55rem 0.75rem 0.6rem;
+    margin: 0 0 0.65rem 0;
+    background-color: var(--auth-surface-muted);
+}
+
+.pii-fieldset legend {
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: var(--auth-primary);
+    padding: 0 0.35rem;
+    margin-bottom: 0;
+}
+
+.pii-fieldset label:last-child,
+.pii-fieldset .auth-grid-2:last-child {
+    margin-bottom: 0;
+}
+
+/* Indicador de Política de Contraseña Compacto */
+.password-policy-box {
+    background-color: var(--auth-surface-muted);
+    border: 1px solid var(--auth-border-subtle);
+    border-radius: 6px;
+    padding: 0.45rem 0.7rem;
+    margin-bottom: 0.65rem;
+    font-size: 0.75rem;
+    line-height: 1.3;
+}
+
+.password-policy-box strong {
+    color: var(--auth-text-main);
+}
+
+.policy-list {
+    margin: 0.25rem 0 0;
+    padding-left: 1rem;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.12rem 0.65rem;
+}
+
+@media (min-width: 520px) {
+    .policy-list {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .policy-list li:last-child {
+        grid-column: 1 / -1;
+    }
+}
+
+.policy-list li {
+    margin-bottom: 0;
+}
+
+.policy-ok {
+    color: var(--auth-primary);
+    font-weight: 600;
+}
+
+.policy-pending {
+    color: var(--auth-text-muted);
+}
+
+/* Bloque de Enlaces de Desarrollo */
+.dev-link-box {
+    background-color: var(--auth-warn-bg);
+    border: 1px dashed var(--auth-warn-border);
+    border-radius: 6px;
+    padding: 0.55rem 0.75rem;
+    margin-bottom: 0.65rem;
+    font-size: 0.78rem;
+    color: var(--auth-warn-text);
+    word-break: break-all;
+}
+
+.dev-link-box p {
+    margin-bottom: 0;
+    margin-top: 0.2rem;
+}
+
+.mono-link,
+.mono-text {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.78rem;
+}
+
+/* Alertas */
+.alert {
+    padding: 0.55rem 0.85rem;
+    margin-bottom: 0.65rem;
+    border-radius: 6px;
+    border-left: 4px solid transparent;
+    font-size: 0.84rem;
+}
+
+.alert-error {
+    background-color: var(--auth-error-bg);
+    border-color: var(--auth-error-border);
+    color: var(--auth-error-text);
+}
+
+.alert-success {
+    background-color: var(--auth-success-bg);
+    border-color: var(--auth-success-border);
+    color: var(--auth-success-text);
+}
+
+.alert-warning {
+    background-color: var(--auth-warn-bg);
+    border-color: var(--auth-warn-border);
+    color: var(--auth-warn-text);
+}
+
+.alert-info {
+    background-color: var(--auth-info-bg);
+    border-color: var(--auth-info-border);
+    color: var(--auth-info-text);
+}
+
+/* Badges y Etiquetas de Estado */
+.badge {
+    display: inline-block;
+    padding: 0.14rem 0.48rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    border-radius: 4px;
+    text-transform: uppercase;
+    vertical-align: middle;
+}
+
+.badge-shield {
+    background-color: var(--auth-primary-soft);
+    color: var(--auth-primary-active);
+    border: 1px solid var(--auth-primary-border-soft);
+}
+
+.badge-admin,
+.role-admin {
+    background-color: #F3E8FF;
+    color: #6B21A8;
+    border: 1px solid #E9D5FF;
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+}
+
+.badge-user,
+.role-user {
+    background-color: var(--auth-surface-muted);
+    color: var(--auth-text-muted);
+    border: 1px solid var(--auth-border-subtle);
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+}
+
+.badge-verified {
+    background-color: var(--auth-primary-soft);
+    color: var(--auth-primary-active);
+    border: 1px solid var(--auth-primary-border-soft);
+}
+
+.badge-unverified {
+    background-color: var(--auth-warn-bg);
+    color: var(--auth-warn-text);
+    border: 1px solid #FDE68A;
+}
+
+.badge-danger {
+    background-color: #FEE2E2;
+    color: #991B1B;
+    border: 1px solid #FECACA;
+}
+
+.event-badge {
+    background-color: var(--auth-surface-muted);
+    color: var(--auth-text-main);
+    border: 1px solid var(--auth-border-subtle);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+/* Vista de Perfil (/profile) y Dashboard Compactos */
+.profile-compact-wrap {
+    width: 100%;
+    max-width: 860px;
+    margin: 0 auto;
+}
+
+.dashboard-header {
+    margin-bottom: 0.75rem;
+}
+
+.dashboard-header hgroup {
+    margin-bottom: 0;
+}
+
+.dashboard-header h1,
+.dashboard-header h2 {
+    font-size: 1.25rem;
+    margin-bottom: 0.2rem;
+}
+
+.dashboard-header p {
+    font-size: 0.8125rem;
+    color: var(--auth-text-muted);
+    margin-bottom: 0;
+}
+
+.status-banner {
+    background-color: var(--auth-card-bg);
+    border: 1px solid var(--auth-border-subtle);
+    border-left: 4px solid var(--auth-primary);
+    border-radius: 8px;
+    padding: 0.85rem 1rem;
+    margin-bottom: 0.85rem;
+}
+
+.status-banner p {
+    margin-bottom: 0;
+    font-size: 0.875rem;
+}
+
+.label-muted {
+    display: block;
+    color: var(--auth-text-muted);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.15rem;
+}
+
+.profile-forms-grid {
+    gap: 0.85rem;
+    margin-bottom: 0.85rem;
+}
+
+.card-panel {
+    background-color: var(--auth-card-bg);
+    border: 1px solid var(--auth-border-subtle);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 0.85rem;
+    box-shadow: 0 2px 8px rgba(26, 36, 26, 0.04);
+}
+
+.profile-forms-grid .card-panel {
+    margin-bottom: 0;
+}
+
+.card-panel > header {
+    background: transparent;
+    border-bottom: 1px solid var(--auth-border-subtle);
+    margin: 0 0 0.75rem 0;
+    padding: 0 0 0.5rem 0;
+}
+
+.card-panel > header h2 {
+    font-size: 1.05rem;
+    margin-bottom: 0.15rem;
+}
+
+.card-panel > header small {
+    font-size: 0.78rem;
+    color: var(--auth-text-muted);
+}
+
+.danger-zone-card {
+    border: 1px solid #FECACA;
+    background-color: #FFFAFA;
+}
+
+.danger-zone-card p {
+    font-size: 0.84rem;
+    margin-bottom: 0.65rem;
+}
+
+.danger-warning-text {
+    color: var(--auth-error-text);
+    background-color: var(--auth-error-bg);
+    border-left: 4px solid var(--auth-error-border);
+    padding: 0.55rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.84rem;
+    margin-bottom: 0.75rem;
+}
+
+.modal-actions-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.65rem;
+    margin-top: 0.75rem;
+}
+
+.panel-header-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.action-buttons-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    align-items: center;
+}
+
+/* Tablas de Auditoría y Administración Compactas */
+.audit-table th,
+.audit-table td,
+.admin-users-table th,
+.admin-users-table td {
+    font-size: 0.8rem;
+    padding: 0.45rem 0.6rem;
+    vertical-align: middle;
+}
+
+.ua-cell {
+    max-width: 220px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.details-cell code {
+    font-size: 0.74rem;
+    word-break: break-word;
+    white-space: pre-wrap;
+}
+
+.nowrap-cell {
+    white-space: nowrap;
+}
+
+.empty-row {
+    text-align: center;
+    color: var(--auth-text-muted);
+    padding: 1rem !important;
+}
+
+.muted-uuid {
+    color: var(--auth-text-muted);
+    font-size: 0.7rem;
+    font-family: ui-monospace, SFMono-Regular, monospace;
+}
+
+.verified-tag {
+    display: block;
+    color: var(--auth-primary);
+    font-size: 0.74rem;
+    margin-top: 0.1rem;
+}
+
+.unverified-tag {
+    display: block;
+    color: #B45309;
+    font-size: 0.74rem;
+    margin-top: 0.1rem;
+}
+
+/* Pie de Página Compacto */
+.footer-bar {
+    padding-top: 0.25rem;
+    padding-bottom: 0.5rem;
+    text-align: center;
+    color: var(--auth-text-muted);
+    font-size: 0.75rem;
+}
+
+.footer-bar hr {
+    margin: 0 0 0.4rem 0;
+    border-color: var(--auth-border-subtle);
+}

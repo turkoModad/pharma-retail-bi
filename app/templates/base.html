@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token | default('') }}">
+    <title>{% block title %}Portal de Cuentas{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+    <link rel="stylesheet" href="/static/css/styles.css?v=3">
+    {% block head_extra %}{% endblock %}
+</head>
+<body data-authenticated="{{ 'true' if current_user else 'false' }}">
+    <header class="container-fluid nav-header">
+        <nav class="container">
+            <ul>
+                <li>
+                    <a href="{% if current_user %}/profile{% else %}/login{% endif %}" class="brand-logo">
+                        <strong>Portal de Cuentas</strong>
+                    </a>
+                </li>
+            </ul>
+            <ul>
+                {% if current_user %}
+                    <li>
+                        <span class="user-pill" title="Sesión activa">
+                            {{ current_user.email }}
+                            <small class="role-badge {% if current_user.role == 'admin' or (current_user.role.value is defined and current_user.role.value == 'admin') %}role-admin{% else %}role-user{% endif %}">
+                                {{ current_user.role.value if current_user.role.value is defined else current_user.role }}
+                            </small>
+                        </span>
+                    </li>
+                    <li><a href="/profile">Mi Perfil</a></li>
+                    {% if current_user.role == 'admin' or (current_user.role.value is defined and current_user.role.value == 'admin') %}
+                        <li><a href="/admin">Panel Admin</a></li>
+                    {% endif %}
+                    <li>
+                        <form action="/auth/logout" method="POST" class="inline-form" id="logout-form">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token | default('') }}">
+                            <button type="submit" class="outline contrast btn-sm">Cerrar Sesión</button>
+                        </form>
+                    </li>
+                {% else %}
+                    <li><a href="/login">Iniciar Sesión</a></li>
+                    <li><a href="/register" role="button" class="btn-sm">Registrarse</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+
+    <main class="container main-container">
+        {% set active_error = error_message | default(error | default('')) %}
+        {% set active_success = success_message | default(success | default('')) %}
+        {% set active_flash = flash_message | default(message | default('')) %}
+
+        {% if active_error %}
+            <article class="alert alert-error" role="alert">
+                <strong>No se pudo completar la acción:</strong> {{ active_error }}
+            </article>
+        {% endif %}
+
+        {% if active_success %}
+            <article class="alert alert-success" role="status">
+                <strong>Operación exitosa:</strong> {{ active_success }}
+            </article>
+        {% endif %}
+
+        {% if active_flash %}
+            <article class="alert alert-info" role="status">
+                <strong>Aviso:</strong> {{ active_flash }}
+            </article>
+        {% endif %}
+
+        {% if request is defined and request.query_params.get('expired') == '1' %}
+            <article class="alert alert-warning" role="alert">
+                <strong>Sesión expirada:</strong> Su sesión ha caducado por seguridad. Por favor inicie sesión nuevamente.
+            </article>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="container footer-bar">
+        <hr>
+        <div class="footer-meta">
+            <small>Portal Seguro de Gestión de Cuentas &bull; Protección de datos personales y acceso</small>
+        </div>
+    </footer>
+
+    <script src="/static/js/auth_refresh.js?v=3" defer></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

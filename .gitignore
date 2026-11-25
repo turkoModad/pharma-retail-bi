@@ -1,17 +1,65 @@
-# Secretos y variables de entorno
+# ==============================================================================
+# 1. Secretos, certificados y variables de entorno
+# ==============================================================================
 .env
 .env.*
-!.env.example
 *.env
+!.env.example
+*.pem
+*.key
+*credentials*.json
+.cloudflared/
 
-# Datos crudos privados e intermedios
+# ==============================================================================
+# 2. Bases de datos locales, WAL/SHM y respaldos
+# ==============================================================================
+data/*.db
+data/*.db-*
+*.db
+*.db-shm
+*.db-wal
+*.db-journal
+*.sqlite
+*.sqlite3
+*.bak
+*.old
+*.tmp
+*.sql
+*.sql.gz
+
+# ==============================================================================
+# 3. Datos crudos privados e intermedios del pipeline ETL
+# ==============================================================================
 compras/
 etl/data/interim/
 
-# Entornos virtuales y cachés de Python/Jupyter
+# ==============================================================================
+# 4. Entornos virtuales, cachés y artefactos de Python / Jupyter
+# ==============================================================================
 entorno-contrato/
-.venv/
 venv/
+.venv/
+env/
 __pycache__/
 *.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+dist/
+build/
 .ipynb_checkpoints/
+
+# ==============================================================================
+# 5. Logs, sistema operativo e IDEs
+# ==============================================================================
+*.log
+logs/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+deploy/
+03_auditoria_y_exploracion_bi.ipynb

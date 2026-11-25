@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+
+{% block title %}Panel de Administración | Portal de Cuentas{% endblock %}
+
+{% block content %}
+<section class="dashboard-header">
+    <hgroup>
+        <h1>Panel de Administración</h1>
+        <p>Gestión de cuentas de usuario, roles y registro de actividad del sistema.</p>
+    </hgroup>
+</section>
+
+<article class="card-panel">
+    <header class="panel-header-flex">
+        <div>
+            <h2>Gestión de Usuarios Registrados</h2>
+            <small>Administración de estado, roles y desbloqueo de cuentas</small>
+        </div>
+        <span class="badge badge-admin">Total: {{ users | length if users is defined else 0 }}</span>
+    </header>
+
+    <div class="overflow-auto">
+        <table class="striped admin-users-table">
+            <thead>
+                <tr>
+                    <th>Usuario / Email</th>
+                    <th>Rol</th>
+                    <th>Estado</th>
+                    <th>Intentos / Bloqueo</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if users is defined and users %}
+                    {% for u in users %}
+                    {% set u_role = u.role.value if u.role.value is defined else u.role %}
+                    <tr>
+                        <td>
+                            <strong>{{ u.full_name | default('Sin nombre') }}</strong><br>
+                            <small class="mono-text">{{ u.email }}</small><br>
+                            <small class="muted-uuid">ID: {{ u.id }}</small>
+                        </td>
+                        <td>
+                            <span class="badge {% if u_role == 'admin' %}badge-admin{% else %}badge-user{% endif %}">
+                                {{ u_role | upper }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if u.is_active %}
+                                <span class="badge badge-verified">ACTIVO</span>
+                            {% else %}
+                                <span class="badge badge-danger">INACTIVO</span>
+                            {% endif %}
+                            {% if u.is_verified %}
+                                <small class="verified-tag" title="Email verificado">&#10003; Verificado</small>
+                            {% else %}
+                                <small class="unverified-tag" title="Email no verificado">&#9888; No verificado</small>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="mono-text">Fallos: {{ u.failed_login_attempts | default(0) }}</span>
+                            {% if u.locked_until %}
+                                <br><span class="badge badge-danger">BLOQUEADO</span>
+                                <small class="mono-text block-until">
+                                    hasta {{ u.locked_until.strftime('%H:%M:%S UTC') if u.locked_until.strftime is defined else u.locked_until }}
+                                </small>
+                            {% endif %}
+                        </td>
+                        <td class="actions-cell">
+                            <div class="action-buttons-group">
+                                <form action="/admin/users/{{ u.id }}/status" method="POST" class="inline-form">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token | default('') }}">
+                                    <input type="hidden" name="is_active" value="{{ 'false' if u.is_active else 'true' }}">
+                                    <button type="submit" class="btn-xs {% if u.is_active %}contrast outline{% else %}primary{% endif %}">
+                                        {{ 'Desactivar' if u.is_active else 'Activar' }}
+                                    </button>
+                                </form>
+
+                                <form action="/admin/users/{{ u.id }}/role" method="POST" class="inline-form">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token | default('') }}">
+                                    <input type="hidden" name="role" value="{{ 'user' if u_role == 'admin' else 'admin' }}">
+                                    <button type="submit" class="btn-xs secondary outline">
+                                        Rol &rarr; {{ 'USER' if u_role == 'admin' else 'ADMIN' }}
+                                    </button>
+                                </form>
+
+                                {% if u.locked_until or (u.failed_login_attempts is defined and u.failed_login_attempts > 0) %}
+                                <form action="/admin/users/{{ u.id }}/unlock" method="POST" class="inline-form">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token | default('') }}">
+                                    <input type="hidden" name="unlock_account" value="true">
+                                    <button type="submit" class="btn-xs warning-btn">
+                                        Desbloquear
+                                    </button>
+                                </form>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="empty-row">No hay usuarios disponibles para mostrar.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</article>
+
+<article class="card-panel">
+    <header class="panel-header-flex">
+        <div>
+            <h2>Historial de Actividad del Sistema</h2>
+            <small>Registro de eventos de inicio de sesión, cierres de sesión y cambios en las cuentas</small>
+        </div>
+        <span class="badge badge-shield">Registros: {{ audit_logs | length if audit_logs is defined else 0 }}</span>
+    </header>
+
+    <div class="overflow-auto">
+        <table class="striped audit-table">
+            <thead>
+                <tr>
+                    <th>Fecha / Hora</th>
+                    <th>Evento</th>
+                    <th>Usuario</th>
+                    <th>Dirección IP</th>
+                    <th>Dispositivo / Navegador</th>
+                    <th>Detalles</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if audit_logs is defined and audit_logs %}
+                    {% for log in audit_logs %}
+                    {% set ev_type = log.event_type.value if log.event_type.value is defined else log.event_type %}
+                    <tr>
+                        <td class="mono-text nowrap-cell">
+                            {{ log.created_at.strftime('%Y-%m-%d %H:%M:%S UTC') if log.created_at is defined and log.created_at.strftime is defined else log.created_at }}
+                        </td>
+                        <td>
+                            <span class="badge event-badge {% if 'FAILED' in ev_type or 'LOCKED' in ev_type or 'REUSE' in ev_type %}badge-danger{% elif 'SUCCESS' in ev_type or 'VERIFIED' in ev_type %}badge-verified{% endif %}">
+                                {{ ev_type }}
+                            </span>
+                        </td>
+                        <td class="mono-text">
+                            {{ log.user_id if log.user_id else 'Sistema' }}
+                        </td>
+                        <td class="mono-text">{{ log.ip_address | default('N/A') }}</td>
+                        <td class="ua-cell" title="{{ log.user_agent | default('') }}">
+                            {{ log.user_agent | default('N/A') }}
+                        </td>
+                        <td class="details-cell">
+                            <code>{{ log.details | tojson if log.details is mapping else (log.details | default('{}')) }}</code>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="6" class="empty-row">No se encontraron registros de actividad.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</article>
+{% endblock %}
